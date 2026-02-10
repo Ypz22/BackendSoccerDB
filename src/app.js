@@ -36,9 +36,6 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// ✅ Responder preflight
-app.options('*', cors());
-
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
