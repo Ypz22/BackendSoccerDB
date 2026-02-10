@@ -1,0 +1,31 @@
+const express = require('express');
+const teamsRoutes = require('./routes/Teams.routes');
+const playerRoutes = require('./routes/Players.routes');
+const directorRoutes = require('./routes/Director.routes');
+const ConnectDB = require('./config/db');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const authRoutes = require('./routes/auth.routes');
+
+
+dotenv.config();
+ConnectDB.connect();
+
+const app = express();
+
+app.use(cors({
+    origin: ['http://localhost:4200', "https://soccerdb-d10e7.web.app/", "https://soccerdb-d10e7.firebaseapp.com/"],
+    credentials: true
+}));
+
+app.use(express.json());
+
+app.use('/api/auth', authRoutes);
+
+app.use(express.static('src/public'));
+
+app.use('/api/teams', teamsRoutes);
+app.use('/api/players', playerRoutes);
+app.use('/api/directors', directorRoutes);
+
+module.exports = app;
