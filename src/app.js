@@ -7,16 +7,37 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes = require('./routes/auth.routes');
 
-
 dotenv.config();
 ConnectDB.connect();
 
 const app = express();
 
+// ✅ OJO: sin slash final
+const allowedOrigins = [
+    'http://localhost:4200',
+    'https://soccerdb-d10e7.web.app',
+    'https://soccerdb-d10e7.firebaseapp.com',
+];
+
+// ✅ CORS antes de rutas
 app.use(cors({
-    origin: ['http://localhost:4200', "https://soccerdb-d10e7.web.app", "https://soccerdb-d10e7.firebaseapp.com"],
-    credentials: true
+    origin: function (origin, callback) {
+        // Permite requests sin origin (Postman, server-to-server)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error(`CORS bloqueado para: ${origin}`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+// ✅ Responder preflight
+app.options('*', cors());
 
 app.use(express.json());
 
