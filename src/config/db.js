@@ -1,21 +1,23 @@
 const { Pool } = require('pg');
-const dotenv = require('dotenv');
 const winston = require('winston');
 
-dotenv.config();
+// ⚠️ En Render NO necesitas dotenv si usas Environment Variables
+// dotenv.config();
 
 const logger = winston.createLogger({
+    level: 'info',
     transports: [new winston.transports.Console()]
 });
 
+// Render / producción suele usar DATABASE_URL
 const pool = new Pool({
-    user: process.env.DB_USER || 'admin',
-    host: process.env.DB_HOST || 'localhost',
-    database: process.env.DB_NAME || 'soccerdb',
-    password: process.env.DB_PASSWORD || 'admin123',
-    port: process.env.DB_PORT || 5432,
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production'
+        ? { rejectUnauthorized: false }
+        : false
 });
 
+// Test de conexión
 const connectDB = async () => {
     try {
         logger.info('Connecting to the database...');
@@ -29,6 +31,6 @@ const connectDB = async () => {
 
 module.exports = {
     connect: connectDB,
-    query: (...params) => pool.query(...params),
+    query: (text, params) => pool.query(text, params),
     end: () => pool.end()
 };
